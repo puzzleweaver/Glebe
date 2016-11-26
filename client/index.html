@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<canvas id="ctx" width="500" height="500" style="border:1px solid black;">
+</canvas>
+
+<div id="chat-text" style="width:500px; height:100px; overflow-y:scroll">
+	<div>Hello!</div>
+</div>
+
+<form id="chat-form">
+	<input id="chat-input" type="text" style="width:500px"></input>
+</form>
+
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+	
+	/* 
+	setup node.js and libraries:
+		download node.js from https://nodejs.org/en/download/
+		open cmd and change directory to Glebe
+		type "npm install express"
+		type "npm install socket.io"
+	to start server:
+		make sure node.js is installed
+		open cmd and change directory to Glebe
+		type command "node app.js"
+	to end server:
+		ctrl+C in cmd
+	to visit website:
+		enter in browser "localhost:2000"
+		
+	to send data to the server:
+		socket.emit(label, data);
+	to receive data sent by the server:
+		socket.on(label, function(data) {
+			do stuff with data
+		});
+	*/
+
+	var chatText = document.getElementById("chat-text");
+	var chatInput = document.getElementById("chat-input");
+	var chatForm = document.getElementById("chat-form");
+	var ctx = document.getElementById("ctx").getContext("2d");
+	var id;
+	ctx.font = "30px Arial";
+	
+	var socket = io();
+	
+	socket.on("id", function(data) {
+		id = data;
+	});
+	socket.on("newPositions", function(data) {
+		//new information on positions, basically a render function
+		ctx.clearRect(0, 0, 500, 500);
+		var index; //index of this player
+		for(var i = 0; i < data.player.length; i++)
+			if(data.player[i].id == id)
+				index = i;
+		//draw field, red and blue sides
+		ctx.fillStyle = "#ff0000";
+		ctx.fillRect(0, 0, 500, 500 - data.player[index].y);
+		ctx.fillStyle = "#0000ff";
+		ctx.fillRect(0, 500 - data.player[index].y, 500, 500 - (500 - data.player[index].y));
+		//draw other players relative to this player
+		ctx.fillStyle = "#000000";
+		for(var i = 0; i < data.player.length; i++) {
+			if(i != index)
+				ctx.fillRect(250 + data.player[i].x - data.player[index].x - 10,
+							 250 + data.player[i].y - data.player[index].y - 10, 20, 20);
+		}
+		//draw player at center
+		ctx.fillStyle = "#ffffff";
+		ctx.fillRect(240, 240, 20, 20);
+	});
+	socket.on("addToChat", function(data) {
+		chatText.innerHTML += "<div>" + data + "</div>";
+	});
+	socket.on("evalAnswer", function(data) {
+		console.log(data);
+	});
+	
+	chatForm.onsubmit = function(e) {
+		e.preventDefault();
+		if(chatInput.value[0] === '/')
+			socket.emit("evalServer", chatInput.value.slice(1));
+		else
+			socket.emit("sendMsgToServer", chatInput.value);
+		chatInput.value = "";
+	}
+	
+	document.onkeydown = function(event) {
+		if(event.keyCode === 68) //d
+			socket.emit("keyPress", {inputId:"right", state:true});
+		else if(event.keyCode == 83) //s
+			socket.emit("keyPress", {inputId:"down", state:true});
+		else if(event.keyCode == 65) //a
+			socket.emit("keyPress", {inputId:"left", state:true});
+		else if(event.keyCode == 87) //w
+			socket.emit("keyPress", {inputId:"up", state:true});
+	}
+	document.onkeyup = function(event) {
+		if(event.keyCode === 68) //d
+			socket.emit("keyPress", {inputId:"right", state:false});
+		else if(event.keyCode == 83) //s
+			socket.emit("keyPress", {inputId:"down", state:false});
+		else if(event.keyCode == 65) //a
+			socket.emit("keyPress", {inputId:"left", state:false});
+		else if(event.keyCode == 87) //w
+			socket.emit("keyPress", {inputId:"up", state:false});
+	}
+</script>
+</html>
