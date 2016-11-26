@@ -40,6 +40,7 @@ var Player = function(id) {
 	self.pressingUp = false;
 	self.pressingDown = false;
 	self.maxSpeed = 10;
+	self.team = Math.floor(2 * Math.random());
 	
 	var super_update = self.update;
 	self.update = function() {
@@ -91,7 +92,8 @@ Player.update = function() {
 		pack.push({
 			x:player.x,
 			y:player.y,
-			id:player.id
+			id:player.id,
+			team:player.team
 		});
 	}
 	return pack;
