@@ -72,6 +72,11 @@ var Player = function(id) {
 		else
 			self.speedY = 0;
 	}
+	self.respawn = function() {
+		self.x = 0;
+		self.y = 0;
+	}
+	
 	Player.list[id] = self;
 	return self;
 }
@@ -95,6 +100,31 @@ Player.onDisconnect = function(socket) {
 }
 Player.update = function() {
 	var pack = [];
+	//detect collisions
+	var dx, dy;
+	for(var i in Player.list) {
+		for(var j in Player.list) {
+			//opposite teams, but in the same area
+			if(Player.list[i].team != Player.list[j].team) {
+				dx = Player.list[i].x - Player.list[j].x;
+				dy = Player.list[i].y - Player.list[j].y;
+				if(dx * dx + dy * dy < 32 * 32) {
+					if(Player.list[i].y > 0 && Player.list[j].y > 0) {
+						if(Player.list[i].team == 0)
+							Player.list[i].respawn();
+						else
+							Player.list[j].respawn();
+					}else if(Player.list[i].y < 0 && Player.list[j].y < 0) {
+						if(Player.list[i].team == 0)
+							Player.list[j].respawn();
+						else
+							Player.list[j].respawn();
+					}
+				}
+			}
+		}
+	}
+	//create pack
 	for(var i in Player.list) {
 		var player = Player.list[i];
 		player.update();
