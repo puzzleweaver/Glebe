@@ -15,8 +15,8 @@ var SOCKET_LIST = {};
 
 var Entity = function() {
 	var self = {
-		x:250,
-		y:250,
+		x:0,
+		y:0,
 		speedX: 0,
 		speedY: 0,
 		id:""
@@ -39,13 +39,22 @@ var Player = function(id) {
 	self.pressingRight = false;
 	self.pressingUp = false;
 	self.pressingDown = false;
-	self.maxSpeed = 10;
+	self.maxSpeed = 8;
 	self.team = Math.floor(2 * Math.random());
 	
 	var super_update = self.update;
 	self.update = function() {
 		self.updateSpeed();
 		super_update();
+		//check bounds
+		if(self.x < -500)
+			self.x = -500;
+		else if(self.x > 500)
+			self.x = 500;
+		if(self.y < -1000)
+			self.y = -1000;
+		else if(self.y > 1000)
+			self.y = 1000;
 	}
 	
 	self.updateSpeed = function() {
@@ -98,8 +107,30 @@ Player.update = function() {
 	}
 	return pack;
 }
+var Flag = function() {
+	var self = Entity();
+	self.x = 1000 * Math.random() - 500;
+	self.y = 2000 * Math.random() - 1000;
+	return self;
+}
+Flag.list = {};
+Flag.update = function() {
+	var pack = [];
+	for(var i in Flag.list) {
+		var flag = Flag.list[i];
+		flag.update();
+		pack.push({
+			x:flag.x,
+			y:flag.y
+		});
+	}
+	return pack;
+}
 
 var DEBUG = true;
+for(var i = 0; i < 20; i++) {
+	Flag.list[i] = Flag();
+}
 
 var io = require("socket.io")(serv, {});
 io.sockets.on("connection", function(socket) {
@@ -129,9 +160,10 @@ io.sockets.on("connection", function(socket) {
 setInterval(function() {
 	var pack = {
 		player:Player.update(),
+		flags:Flag.update()
 	}
 	for(var i in SOCKET_LIST) {
 		var socket = SOCKET_LIST[i];
 		socket.emit("newPositions", pack);
 	}
-}, 1000/25);
+}, 1000/40); //1000/fps

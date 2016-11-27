@@ -52,16 +52,39 @@
 	});
 	socket.on("newPositions", function(data) {
 		//new information on positions, basically a render function
-		ctx.clearRect(0, 0, 500, 500);
+		ctx.fillStyle = "#444444";
+		ctx.fillRect(0, 0, 500, 500);
 		var index; //index of this player
 		for(var i = 0; i < data.player.length; i++)
 			if(data.player[i].id == id)
 				index = i;
+		/*
+			Dimensions of board: (subject to change)
+				1000 width
+				2000 height
+				border line at y = 0
+				y < 0 => red side
+				y > 0 => blue side
+				POSSIBILITY TO THINK ABOUT:
+					should the red team view the board inverted,
+					as if from their perspective?
+					That way home is always in the down direction
+		*/
 		//draw field, red and blue sides
-		ctx.fillStyle = "#ff0000";
-		ctx.fillRect(0, 0, 500, 500 - data.player[index].y);
-		ctx.fillStyle = "#0000ff";
-		ctx.fillRect(0, 500 - data.player[index].y, 500, 500 - (500 - data.player[index].y));
+		ctx.fillStyle = "#ff4444";
+		ctx.fillRect(250 - 500 - data.player[index].x - 16, 250 - 1000 - data.player[index].y - 16, 1000 + 32, 1000 + 16);
+		ctx.fillStyle = "#4444ff";
+		ctx.fillRect(250 - 500 - data.player[index].x - 16, 250 - data.player[index].y, 1000 + 32, 1000 + 16);
+		//draw flags
+		ctx.fillStyle = "#ffff00";
+		ctx.strokeStyle = "#000000";
+		for(var i = 0; i < data.flags.length; i++) {
+			ctx.beginPath();
+			ctx.rect(250 + data.flags[i].x - data.player[index].x - 16,
+						 250 + data.flags[i].y - data.player[index].y - 16, 32, 32);
+			ctx.fill();
+			ctx.stroke();
+		}
 		//draw other players relative to this player
 		ctx.lineWidth = 4;
 		for(var i = 0; i < data.player.length; i++) {
