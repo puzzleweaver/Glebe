@@ -14,16 +14,16 @@ var Flag = function() {
 		self.speedY *= 0.88;
 		if(self.x < -Map.width*0.5) {
 			self.x = -Map.width*0.5;
-			self.speedX = 0;
+			self.speedX *= -1;
 		} else if(self.x > Map.width*0.5) {
 			self.x = Map.width*0.5;
-			self.speedX = 0;
+			self.speedX *= -1;
 		} if(self.y < -Map.height*0.5) {
 			self.y = -Map.height*0.5;
-			self.speedY = 0;
+			self.speedY *= -1;
 		} else if(self.y > Map.height*0.5) {
 			self.y = Map.height*0.5;
-			self.speedY = 0;
+			self.speedY *= -1;
 		}
 		super_update();
 		
