@@ -15,11 +15,11 @@ var SOCKET_LIST = {};
 
 var Entity = function() {
 	var self = {
-		x:0,
-		y:0,
-		speedX: 0,
-		speedY: 0,
-		id:""
+			x:0,
+			y:0,
+			speedX: 0,
+			speedY: 0,
+			id:""
 	}
 	self.update = function() {
 		self.updatePosition();
@@ -41,42 +41,47 @@ var Player = function(id) {
 	self.pressingDown = false;
 	self.maxSpeed = 8;
 	self.team = Math.floor(2 * Math.random());
-	
+
 	var super_update = self.update;
 	self.update = function() {
 		self.updateSpeed();
 		super_update();
 		//check bounds
-		if(self.x < -500)
+		if(self.x < -500) {
 			self.x = -500;
-		else if(self.x > 500)
-			self.x = 500;
-		if(self.y < -1000)
-			self.y = -1000;
-		else if(self.y > 1000)
-			self.y = 1000;
-	}
-	
-	self.updateSpeed = function() {
-		if(self.pressingLeft)
-			self.speedX = -self.maxSpeed;
-		else if(self.pressingRight)
-			self.speedX = self.maxSpeed;
-		else
 			self.speedX = 0;
-		
-		if(self.pressingUp)
-			self.speedY = -self.maxSpeed;
-		else if(self.pressingDown)
-			self.speedY = self.maxSpeed;
-		else
+		} else if(self.x > 500) {
+			self.x = 500;
+			self.speedX = 0;
+		} if(self.y < -1000) {
+			self.y = -1000;
 			self.speedY = 0;
+		} else if(self.y > 1000) {
+			self.y = 1000;
+			self.speedY = 0;
+		}
+	}
+
+	self.updateSpeed = function() {
+		var step = 2;
+		var smooth = self.maxSpeed/(step+self.maxSpeed);
+		if(self.pressingLeft)
+			self.speedX -= step;
+		else if(self.pressingRight)
+			self.speedX += step;
+
+		if(self.pressingUp)
+			self.speedY -= step;
+		else if(self.pressingDown)
+			self.speedY += step;
+		self.speedX *= smooth;
+		self.speedY *= smooth;
 	}
 	self.respawn = function() {
 		self.x = 0;
 		self.y = 0;
 	}
-	
+
 	Player.list[id] = self;
 	return self;
 }
@@ -118,7 +123,7 @@ Player.update = function() {
 						if(Player.list[i].team == 0)
 							Player.list[j].respawn();
 						else
-							Player.list[j].respawn();
+							Player.list[i].respawn();
 					}
 				}
 			}
@@ -166,9 +171,9 @@ var io = require("socket.io")(serv, {});
 io.sockets.on("connection", function(socket) {
 	socket.id = Math.random();
 	SOCKET_LIST[socket.id] = socket;
-	
+
 	Player.onConnect(socket);
-	
+
 	socket.on("disconnect", function() {
 		delete SOCKET_LIST[socket.id];
 		Player.onDisconnect(socket);
@@ -189,8 +194,8 @@ io.sockets.on("connection", function(socket) {
 
 setInterval(function() {
 	var pack = {
-		player:Player.update(),
-		flags:Flag.update()
+			player:Player.update(),
+			flags:Flag.update()
 	}
 	for(var i in SOCKET_LIST) {
 		var socket = SOCKET_LIST[i];
