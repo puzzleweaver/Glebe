@@ -52,9 +52,13 @@ var Player = function(id) {
 		self.updateSpeed();
 		super_update();
 		self.checkBounds();
-		if(self.carryingFlag == 0 && self.pressingSpace)
-			self.pickUpFlag();
-		
+		if(self.pressingSpace) {
+			if(self.carryingFlag == 0)
+				self.pickUpFlag();
+			else
+				self.dropFlag();
+			self.pressingSpace = false;
+		}
 	}
 
 	self.pickUpFlag = function() {
@@ -68,6 +72,15 @@ var Player = function(id) {
 				break;
 			}
 		}
+	}
+	self.dropFlag = function() {
+		var flag = Flag();
+		flag.x = self.x;
+		flag.y = self.y;
+		flag.speedX = self.speedX*4;
+		flag.speedY = self.speedY*4;
+		Flag.list.push(flag);
+		self.carryingFlag = 0;
 	}
 	
 	self.checkBounds = function() {
@@ -107,6 +120,7 @@ var Player = function(id) {
 	}
 	
 	self.respawn = function() {
+		self.dropFlag();
 		self.x = 0;
 		self.y = 0;
 	}
@@ -190,10 +204,35 @@ Player.update = function() {
 }
 
 var Flag = function() {
+	
 	var self = Entity();
 	self.x = 1000 * Math.random() - 500;
 	self.y = 2000 * Math.random() - 1000;
+	var super_update = self.update;
+
+	self.update = function() {
+		
+		self.speedX *= 0.88;
+		self.speedY *= 0.88;
+		if(self.x < -500) {
+			self.x = -500;
+			self.speedX *= -1;
+		} else if(self.x > 500) {
+			self.x = 500;
+			self.speedX *= -1;
+		} if(self.y < -1000) {
+			self.y = -1000;
+			self.speedY *= -1;
+		} else if(self.y > 1000) {
+			self.y = 1000;
+			self.speedY *= -1;
+		}
+		super_update();
+		
+	}
+	
 	return self;
+	
 }
 
 Flag.list = [];
