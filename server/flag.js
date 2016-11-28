@@ -1,28 +1,29 @@
 var Entity = require("./entity.js");
+var Map = require("./map.js");
 
 var Flag = function() {
 	
 	var self = Entity();
-	self.x = 1000 * Math.random() - 500;
-	self.y = 2000 * Math.random() - 1000;
+	self.x = Map.width * (Math.random() - 0.5);
+	self.y = Map.height * (Math.random() - 0.5);
 	var super_update = self.update;
 
 	self.update = function() {
 		
 		self.speedX *= 0.88;
 		self.speedY *= 0.88;
-		if(self.x < -500) {
-			self.x = -500;
-			self.speedX *= -1;
-		} else if(self.x > 500) {
-			self.x = 500;
-			self.speedX *= -1;
-		} if(self.y < -1000) {
-			self.y = -1000;
-			self.speedY *= -1;
-		} else if(self.y > 1000) {
-			self.y = 1000;
-			self.speedY *= -1;
+		if(self.x < -Map.width*0.5) {
+			self.x = -Map.width*0.5;
+			self.speedX = 0;
+		} else if(self.x > Map.width*0.5) {
+			self.x = Map.width*0.5;
+			self.speedX = 0;
+		} if(self.y < -Map.height*0.5) {
+			self.y = -Map.height*0.5;
+			self.speedY = 0;
+		} else if(self.y > Map.height*0.5) {
+			self.y = Map.height*0.5;
+			self.speedY = 0;
 		}
 		super_update();
 		

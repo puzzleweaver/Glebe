@@ -1,19 +1,20 @@
 
 var Entity = require("./entity.js");
 var Flag = require("./flag.js");
+var Map = require("./map.js");
 
 var Player = function(id) {
 	
 	var self = Entity();
 	self.id = id;
-	self.number = "" + Math.floor(10 * Math.random());
 	self.pressingLeft = false;
 	self.pressingRight = false;
 	self.pressingUp = false;
 	self.pressingDown = false;
 	self.pressingSpace = false;
 	self.carryingFlag = 0;
-	self.maxSpeed = 8;
+	self.maxSpeed = 0.25;
+	self.size = 1;
 	self.team = Math.floor(2 * Math.random());
 
 	var super_update = self.update;
@@ -37,8 +38,8 @@ var Player = function(id) {
 		for(var i in Flag.list) {
 			dx = Flag.list[i].x - self.x;
 			dy = Flag.list[i].y - self.y;
-			if(dx * dx + dy * dy < 32 * 32) {
-				self.carryingFlag = 1; // flag size eventually
+			if(dx * dx + dy * dy < 1) {
+				self.carryingFlag = Flag.list[i].size;
 				Flag.list.splice(i, 1);
 				break;
 			}
@@ -48,6 +49,7 @@ var Player = function(id) {
 		var flag = Flag();
 		flag.x = self.x;
 		flag.y = self.y;
+		flag.size = self.carryingFlag;
 		flag.speedX = self.speedX*4;
 		flag.speedY = self.speedY*4;
 		Flag.list.push(flag);
@@ -56,17 +58,17 @@ var Player = function(id) {
 	
 	self.checkBounds = function() {
 		
-		if(self.x < -500) {
-			self.x = -500;
+		if(self.x < -Map.width*0.5) {
+			self.x = -Map.width*0.5;
 			self.speedX = 0;
-		} else if(self.x > 500) {
-			self.x = 500;
+		} else if(self.x > Map.width*0.5) {
+			self.x = Map.width*0.5;
 			self.speedX = 0;
-		} if(self.y < -1000) {
-			self.y = -1000;
+		} if(self.y < -Map.height*0.5) {
+			self.y = -Map.height*0.5;
 			self.speedY = 0;
-		} else if(self.y > 1000) {
-			self.y = 1000;
+		} else if(self.y > Map.height*0.5) {
+			self.y = Map.height*0.5;
 			self.speedY = 0;
 		}
 		
@@ -74,7 +76,7 @@ var Player = function(id) {
 	
 	self.updateSpeed = function() {
 		
-		var step = 2;
+		var step = 0.0625;
 		var smooth = self.maxSpeed/(step+self.maxSpeed);
 		if(self.pressingLeft)
 			self.speedX -= step;
@@ -133,33 +135,6 @@ Player.update = function() {
 	var pack = [];
 	//detect collisions
 	var dx, dy;
-	
-	for(var i in Player.list) {
-		for(var j in Player.list) {
-			
-			//opposite teams, but in the same area
-			if(Player.list[i].team != Player.list[j].team) {
-				dx = Player.list[i].x - Player.list[j].x;
-				dy = Player.list[i].y - Player.list[j].y;
-				if(dx * dx + dy * dy < 32 * 32) {
-					//you're not technically in a zone unless all of you, not just your center, is in the zone.
-					//otherwise, some glitchy stuff happens, just trust me fam.
-					if(Player.list[i].y > 16 && Player.list[j].y > 16) {
-						if(Player.list[i].team == 0)
-							Player.list[i].respawn();
-						else
-							Player.list[j].respawn();
-					}else if(Player.list[i].y < -16 && Player.list[j].y < -16) {
-						if(Player.list[i].team == 0)
-							Player.list[j].respawn();
-						else
-							Player.list[i].respawn();
-					}
-				}
-			}
-			
-		}
-	}
 	
 	//create pack
 	for(var i in Player.list) {

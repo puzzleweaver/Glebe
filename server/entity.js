@@ -5,6 +5,7 @@ var Entity = function() {
 			y:0,
 			speedX: 0,
 			speedY: 0,
+			size: 1,
 			id:""
 	}
 	self.update = function() {

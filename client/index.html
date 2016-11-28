@@ -15,29 +15,8 @@
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
 	
-	/* 
-	setup node.js and libraries:
-		download node.js from https://nodejs.org/en/download/
-		open cmd and change directory to Glebe
-		type "npm install express"
-		type "npm install socket.io"
-	to start server:
-		make sure node.js is installed
-		open cmd and change directory to Glebe
-		type command "node app.js"
-	to end server:
-		ctrl+C in cmd
-	to visit website:
-		enter in browser "localhost:2000"
-		
-	to send data to the server:
-		socket.emit(label, data);
-	to receive data sent by the server:
-		socket.on(label, function(data) {
-			do stuff with data
-		});
-	*/
-
+	var SCALE = 32;
+	
 	var chatText = document.getElementById("chat-text");
 	var chatInput = document.getElementById("chat-input");
 	var chatForm = document.getElementById("chat-form");
@@ -54,31 +33,25 @@
 		//new information on positions, basically a render function
 		ctx.fillStyle = "#444444";
 		ctx.fillRect(0, 0, 500, 500);
+		
 		var index; //index of this player
 		for(var i = 0; i < data.player.length; i++)
 			if(data.player[i].id == id)
 				index = i;
-		/*
-			Dimensions of board: (subject to change)
-				1000 width
-				2000 height
-				border line at y = 0
-				y < 0 => red side
-				y > 0 => blue side
-				POSSIBILITY TO THINK ABOUT:
-					should the red team view the board inverted,
-					as if from their perspective?
-					That way home is always in the down direction
-		*/
-		//draw field, red and blue sides
-		ctx.fillStyle = "#ff4444";
-		ctx.fillRect(250 - 500 - data.player[index].x - 16, 250 - 1000 - data.player[index].y - 16, 1000 + 32, 1000 + 16);
-		ctx.fillStyle = "#4444ff";
-		ctx.fillRect(250 - 500 - data.player[index].x - 16, 250 - data.player[index].y, 1000 + 32, 1000 + 16);
+
+		//draw bounds
+		ctx.fillStyle = "#ffffff";
+		ctx.strokeStyle = "#888888";
+		ctx.beginPath();
+		ctx.rect(SCALE*(-20 - data.player[index].x), SCALE*(-20 - data.player[index].y), SCALE*40, SCALE*40);
+		ctx.fill();
+		ctx.stroke();
+		
 		//draw flags
 		for(var i = 0; i < data.flags.length; i++) {
 			renderFlag(data.flags[i].x, data.flags[i].y, data.player[index].x, data.player[index].y);
 		}
+		
 		//draw other players relative to this player
 		ctx.lineWidth = 4;
 		for(var i = 0; i < data.player.length; i++) {
@@ -87,14 +60,15 @@
 			}
 		}
 		renderPlayer(data.player[index], data.player[index].x, data.player[index].y);
+		
 	});
 	
 	renderFlag = function(x, y, px, py) {
 		ctx.fillStyle = "#ffff00";
 		ctx.strokeStyle = "#000000";
 		ctx.beginPath();
-		ctx.rect(250 + x - px - 16,
-					 250 + y - py - 16, 32, 32);
+		ctx.rect(250 + SCALE*(x - px - 0.5),
+					 250 + SCALE*(y - py - 0.5), SCALE, SCALE);
 		ctx.fill();
 		ctx.stroke();
 	}
@@ -107,12 +81,12 @@
 		//outline player differently
 		ctx.strokeStyle = "#000000";
 		ctx.beginPath();
-		ctx.arc(250 + player.x - px, 250 + player.y - py, 16, 0, 2 * Math.PI);
+		ctx.arc(250 + SCALE*(player.x - px), 250 + SCALE*(player.y - py), SCALE*0.5, 0, 2 * Math.PI);
 		ctx.fill();
 		ctx.stroke();
 		
 		if(player.carryingFlag)
-			renderFlag(player.x, player.y-16, px, py);
+			renderFlag(player.x, (player.y-0.5), px, py);
 		
 	}
 	
