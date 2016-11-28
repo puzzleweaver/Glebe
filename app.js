@@ -120,7 +120,8 @@ var Player = function(id) {
 	}
 	
 	self.respawn = function() {
-		self.dropFlag();
+		if(self.carryingFlag)
+			self.dropFlag();
 		self.x = 0;
 		self.y = 0;
 	}
@@ -170,12 +171,14 @@ Player.update = function() {
 				dx = Player.list[i].x - Player.list[j].x;
 				dy = Player.list[i].y - Player.list[j].y;
 				if(dx * dx + dy * dy < 32 * 32) {
-					if(Player.list[i].y > 0 && Player.list[j].y > 0) {
+					//you're not technically in a zone unless all of you, not just your center, is in the zone.
+					//otherwise, some glitchy stuff happens, just trust me fam.
+					if(Player.list[i].y > 16 && Player.list[j].y > 16) {
 						if(Player.list[i].team == 0)
 							Player.list[i].respawn();
 						else
 							Player.list[j].respawn();
-					}else if(Player.list[i].y < 0 && Player.list[j].y < 0) {
+					}else if(Player.list[i].y < -16 && Player.list[j].y < -16) {
 						if(Player.list[i].team == 0)
 							Player.list[j].respawn();
 						else
