@@ -14,7 +14,7 @@ var Player = function(id) {
 	self.pressingSpace = false;
 	self.carryingFlag = 0;
 	self.maxSpeed = 0.25;
-	self.size = 1;
+	self.size = Math.random()*2+1;
 	self.team = Math.floor(2 * Math.random());
 
 	var super_update = self.update;
@@ -36,9 +36,11 @@ var Player = function(id) {
 	self.pickUpFlag = function() {
 		var dx, dy;
 		for(var i in Flag.list) {
+			if(Flag.list[i].size > self.size)
+				continue;
 			dx = Flag.list[i].x - self.x;
 			dy = Flag.list[i].y - self.y;
-			if(dx * dx + dy * dy < 1) {
+			if(dx * dx + dy * dy < self.size+Flag.list[i].size) {
 				self.carryingFlag = Flag.list[i].size;
 				Flag.list.splice(i, 1);
 				break;
@@ -58,17 +60,17 @@ var Player = function(id) {
 	
 	self.checkBounds = function() {
 		
-		if(self.x < -Map.width*0.5) {
-			self.x = -Map.width*0.5;
+		if(self.x-self.size*0.5 < -Map.width*0.5) {
+			self.x = -Map.width*0.5+self.size*0.5;
 			self.speedX = 0;
-		} else if(self.x > Map.width*0.5) {
-			self.x = Map.width*0.5;
+		} else if(self.x+self.size*0.5 > Map.width*0.5) {
+			self.x = Map.width*0.5-self.size*0.5;
 			self.speedX = 0;
-		} if(self.y < -Map.height*0.5) {
-			self.y = -Map.height*0.5;
+		} if(self.y-self.size*0.5 < -Map.height*0.5) {
+			self.y = -Map.height*0.5+self.size*0.5;
 			self.speedY = 0;
-		} else if(self.y > Map.height*0.5) {
-			self.y = Map.height*0.5;
+		} else if(self.y+self.size*0.5 > Map.height*0.5) {
+			self.y = Map.height*0.5-self.size*0.5;
 			self.speedY = 0;
 		}
 		
@@ -145,6 +147,7 @@ Player.update = function() {
 			y:player.y,
 			id:player.id,
 			team:player.team,
+			size:player.size,
 			carryingFlag:player.carryingFlag
 		});
 	}

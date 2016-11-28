@@ -6,23 +6,24 @@ var Flag = function() {
 	var self = Entity();
 	self.x = Map.width * (Math.random() - 0.5);
 	self.y = Map.height * (Math.random() - 0.5);
+	self.size = Math.random()*2+1;
 	var super_update = self.update;
 
 	self.update = function() {
 		
 		self.speedX *= 0.88;
 		self.speedY *= 0.88;
-		if(self.x < -Map.width*0.5) {
-			self.x = -Map.width*0.5;
+		if(self.x-self.size*0.5 < -Map.width*0.5) {
+			self.x = -Map.width*0.5+self.size*0.5;
 			self.speedX *= -1;
-		} else if(self.x > Map.width*0.5) {
-			self.x = Map.width*0.5;
+		} else if(self.x+self.size*0.5 > Map.width*0.5) {
+			self.x = Map.width*0.5-self.size*0.5;
 			self.speedX *= -1;
-		} if(self.y < -Map.height*0.5) {
-			self.y = -Map.height*0.5;
+		} if(self.y-self.size*0.5 < -Map.height*0.5) {
+			self.y = -Map.height*0.5+self.size*0.5;
 			self.speedY *= -1;
-		} else if(self.y > Map.height*0.5) {
-			self.y = Map.height*0.5;
+		} else if(self.y+self.size*0.5 > Map.height*0.5) {
+			self.y = Map.height*0.5-self.size*0.5;
 			self.speedY *= -1;
 		}
 		super_update();
@@ -41,7 +42,8 @@ Flag.update = function() {
 		flag.update();
 		pack.push({
 			x:flag.x,
-			y:flag.y
+			y:flag.y,
+			size:flag.size
 		});
 	}
 	return pack;

@@ -38,7 +38,7 @@ socket.on("newPositions", function(data) {
 
 		//draw flags
 		for(var i = 0; i < data.flags.length; i++) {
-			renderFlag(data.flags[i].x, data.flags[i].y, data.player[index].x, data.player[index].y);
+			renderFlag(data.flags[i].x, data.flags[i].y, data.flags[i].size, data.player[index].x, data.player[index].y);
 		}
 
 		//draw other players relative to this player
@@ -52,12 +52,12 @@ socket.on("newPositions", function(data) {
 	}
 });
 
-renderFlag = function(x, y, px, py) {
+renderFlag = function(x, y, size, px, py) {
 	ctx.fillStyle = "#ffff00";
 	ctx.strokeStyle = "#000000";
 	ctx.beginPath();
-	ctx.rect(250 + SCALE*(x - px - 0.5),
-			250 + SCALE*(y - py - 0.5), SCALE, SCALE);
+	ctx.rect(250 + SCALE*(x - px - 0.5*size),
+			250 + SCALE*(y - py - 0.5*size), SCALE*size, SCALE*size);
 	ctx.fill();
 	ctx.stroke();
 }
@@ -70,12 +70,13 @@ renderPlayer = function(player, px, py) {
 	//outline player differently
 	ctx.strokeStyle = "#000000";
 	ctx.beginPath();
-	ctx.arc(250 + SCALE*(player.x - px), 250 + SCALE*(player.y - py), SCALE*0.5, 0, 2 * Math.PI);
+	ctx.arc(250 + SCALE*(player.x - px), 250 + SCALE*(player.y - py), SCALE*0.5*player.size, 0, 2 * Math.PI);
 	ctx.fill();
 	ctx.stroke();
 
-	if(player.carryingFlag)
-		renderFlag(player.x, (player.y-0.5), px, py);
+	if(player.carryingFlag) {
+		renderFlag(player.x, player.y-player.size*0.5, player.carryingFlag, px, py);
+	}
 
 }
 
