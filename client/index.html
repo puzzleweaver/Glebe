@@ -89,29 +89,27 @@
 		ctx.lineWidth = 4;
 		for(var i = 0; i < data.player.length; i++) {
 			if(i != index) {
-				if(data.player[i].team == 0)
-					ctx.fillStyle = "#ff0000";
-				else
-					ctx.fillStyle = "#0000ff";
-				ctx.strokeStyle = "#000000";
-				ctx.beginPath();
-				ctx.arc(250 + data.player[i].x - data.player[index].x, 250 + data.player[i].y - data.player[index].y,
-						16, 0, 2 * Math.PI);
-				ctx.fill();
-				ctx.stroke();
+				renderPlayer(data.player[i], data.player[index].x, data.player[index].y);
 			}
 		}
-		//draw player at center
-		if(data.player[index].team == 0)
+		renderPlayer(data.player[index], data.player[index].x, data.player[index].y);
+	});
+	
+	renderPlayer = function(player, px, py) {
+		if(player.carryingFlag)
+			ctx.fillStyle = "#ffff00";
+		else if(player.team == 0)
 			ctx.fillStyle = "#ff0000";
 		else
 			ctx.fillStyle = "#0000ff";
+		//outline player differently
+		ctx.strokeStyle = "#000000";
 		ctx.beginPath();
-		ctx.strokeStyle = "#ffffff";
-		ctx.arc(250, 250, 16, 0, 2 * Math.PI);
+		ctx.arc(250 + player.x - px, 250 + player.y - py, 16, 0, 2 * Math.PI);
 		ctx.fill();
 		ctx.stroke();
-	});
+	}
+	
 	socket.on("addToChat", function(data) {
 		chatText.innerHTML += "<div>" + data + "</div>";
 	});
@@ -137,6 +135,8 @@
 			socket.emit("keyPress", {inputId:"left", state:true});
 		else if(event.keyCode == 87) //w
 			socket.emit("keyPress", {inputId:"up", state:true});
+		else if(event.keyCode == 32)
+			socket.emit("keyPress", {inputId:"space", state:true});
 	}
 	document.onkeyup = function(event) {
 		if(event.keyCode === 68) //d
@@ -147,6 +147,8 @@
 			socket.emit("keyPress", {inputId:"left", state:false});
 		else if(event.keyCode == 87) //w
 			socket.emit("keyPress", {inputId:"up", state:false});
+		else if(event.keyCode == 32)
+			socket.emit("keyPress", {inputId:"space", state:false});
 	}
 </script>
 </html>

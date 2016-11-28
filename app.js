@@ -32,6 +32,7 @@ var Entity = function() {
 }
 
 var Player = function(id) {
+	
 	var self = Entity();
 	self.id = id;
 	self.number = "" + Math.floor(10 * Math.random());
@@ -39,14 +40,38 @@ var Player = function(id) {
 	self.pressingRight = false;
 	self.pressingUp = false;
 	self.pressingDown = false;
+	self.pressingSpace = false;
+	self.carryingFlag = 0;
 	self.maxSpeed = 8;
 	self.team = Math.floor(2 * Math.random());
 
 	var super_update = self.update;
+	
 	self.update = function() {
+		
 		self.updateSpeed();
 		super_update();
-		//check bounds
+		self.checkBounds();
+		if(self.carryingFlag == 0 && self.pressingSpace)
+			self.pickUpFlag();
+		
+	}
+
+	self.pickUpFlag = function() {
+		var dx, dy;
+		for(var i in Flag.list) {
+			dx = Flag.list[i].x - self.x;
+			dy = Flag.list[i].y - self.y;
+			if(dx * dx + dy * dy < 32 * 32) {
+				self.carryingFlag = 1; // flag size eventually
+				Flag.list.splice(i, 1);
+				break;
+			}
+		}
+	}
+	
+	self.checkBounds = function() {
+		
 		if(self.x < -500) {
 			self.x = -500;
 			self.speedX = 0;
@@ -60,9 +85,11 @@ var Player = function(id) {
 			self.y = 1000;
 			self.speedY = 0;
 		}
+		
 	}
-
+	
 	self.updateSpeed = function() {
+		
 		var step = 2;
 		var smooth = self.maxSpeed/(step+self.maxSpeed);
 		if(self.pressingLeft)
@@ -76,7 +103,9 @@ var Player = function(id) {
 			self.speedY += step;
 		self.speedX *= smooth;
 		self.speedY *= smooth;
+		
 	}
+	
 	self.respawn = function() {
 		self.x = 0;
 		self.y = 0;
@@ -85,11 +114,15 @@ var Player = function(id) {
 	Player.list[id] = self;
 	return self;
 }
+
 Player.list = {};
 Player.onConnect = function(socket) {
+	
 	var player = Player(socket.id);
+	
 	socket.emit("id", socket.id);
 	socket.on("keyPress", function(data) {
+		
 		if(data.inputId === "left")
 			player.pressingLeft = data.state;
 		else if(data.inputId === "right")
@@ -98,17 +131,26 @@ Player.onConnect = function(socket) {
 			player.pressingUp = data.state;
 		else if(data.inputId === "down")
 			player.pressingDown = data.state;
+		else if(data.inputId === "space")
+			player.pressingSpace = data.state;
+		
 	});
+	
 }
+
 Player.onDisconnect = function(socket) {
 	delete Player.list[socket.id];
 }
+
 Player.update = function() {
+	
 	var pack = [];
 	//detect collisions
 	var dx, dy;
+	
 	for(var i in Player.list) {
 		for(var j in Player.list) {
+			
 			//opposite teams, but in the same area
 			if(Player.list[i].team != Player.list[j].team) {
 				dx = Player.list[i].x - Player.list[j].x;
@@ -127,8 +169,10 @@ Player.update = function() {
 					}
 				}
 			}
+			
 		}
 	}
+	
 	//create pack
 	for(var i in Player.list) {
 		var player = Player.list[i];
@@ -137,18 +181,22 @@ Player.update = function() {
 			x:player.x,
 			y:player.y,
 			id:player.id,
-			team:player.team
+			team:player.team,
+			carryingFlag:player.carryingFlag
 		});
 	}
+	
 	return pack;
 }
+
 var Flag = function() {
 	var self = Entity();
 	self.x = 1000 * Math.random() - 500;
 	self.y = 2000 * Math.random() - 1000;
 	return self;
 }
-Flag.list = {};
+
+Flag.list = [];
 Flag.update = function() {
 	var pack = [];
 	for(var i in Flag.list) {
