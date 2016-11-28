@@ -45,7 +45,7 @@
 	var id;
 	ctx.font = "30px Arial";
 	
-	var socket = io();
+	var socket = io.connect("192.168.1.114:2000");
 	
 	socket.on("id", function(data) {
 		id = data;

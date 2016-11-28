@@ -8,7 +8,7 @@ app.get("/", function(req, res) {
 });
 app.use("/client", express.static(__dirname + "/client"));
 
-serv.listen(2000);
+serv.listen(2000, "0.0.0.0");
 console.log("Server started.");
 
 var SOCKET_LIST = {};
