@@ -13,17 +13,8 @@ console.log("Server started.");
 
 var SOCKET_LIST = {};
 
-/*
-HOW TO INCLUDE OTHER FILES
-	Basically, we create our other files as modules.
-	It will look in the folder node_modules, so we back out of the directory (hence the "./")
-	Then we find the file we have created in our project directory (e.g. player.js)
-	The require function will return the value of "module.exports" within the file
-	so at the end of your class file, simply type "module.exports = ClassName;"
-	badabing badabooded your class is included
-*/
-var Player = require("./player.js");
-var Flag = require("./flag.js");
+var Player = require("./server/player.js");
+var Flag = require("./server/flag.js");
 
 var DEBUG = true;
 for(var i = 0; i < 20; i++) {
