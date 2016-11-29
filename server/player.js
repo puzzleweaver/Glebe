@@ -14,7 +14,7 @@ var Player = function(id) {
 	self.pressingSpace = false;
 	self.carryingFlag = 0;
 	self.maxSpeed = 0.25;
-	self.size = Math.random()*2+1;
+	self.size = Math.random()+1;
 	self.team = Math.floor(2 * Math.random());
 
 	var super_update = self.update;
@@ -51,9 +51,12 @@ var Player = function(id) {
 		var flag = Flag();
 		flag.x = self.x;
 		flag.y = self.y;
+		flag.z = -self.size*0.5;
 		flag.size = self.carryingFlag;
-		flag.speedX = self.speedX*4;
-		flag.speedY = self.speedY*4;
+		var speed = Math.sqrt(self.speedX*self.speedX+self.speedY*self.speedY);
+		flag.speedX = 0.25*self.speedX/speed*(1 + self.size/(1+flag.size));
+		flag.speedY = 0.25*self.speedY/speed*(1 + self.size/(1+flag.size));
+		flag.speedZ = -speed*(1 + self.size/flag.size);
 		Flag.list.push(flag);
 		self.carryingFlag = 0;
 	}

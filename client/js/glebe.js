@@ -19,7 +19,7 @@ socket.on("newPositions", function(data) {
 	if(onStartScreen) {
 		ctx.drawImage(startScreenImage, 0, 0);
 	}else {
-		//new information on positions, basically a render function
+		// new information on positions, basically a render function
 		ctx.fillStyle = "#444444";
 		ctx.fillRect(0, 0, 500, 500);
 
@@ -28,7 +28,7 @@ socket.on("newPositions", function(data) {
 			if(data.player[i].id == id)
 				index = i;
 
-		//draw bounds
+		// draw bounds
 		ctx.fillStyle = "#ffffff";
 		ctx.strokeStyle = "#888888";
 		ctx.beginPath();
@@ -36,12 +36,15 @@ socket.on("newPositions", function(data) {
 		ctx.fill();
 		ctx.stroke();
 
-		//draw flags
+		// draw flags and their shadows
 		for(var i = 0; i < data.flags.length; i++) {
-			renderFlag(data.flags[i].x, data.flags[i].y, data.flags[i].size, data.player[index].x, data.player[index].y);
+			renderShadow(data.flags[i].x, data.flags[i].y, data.player[index].x, data.player[index].y, data.flags[i].size);
+		}
+		for(var i = 0; i < data.flags.length; i++) {
+			renderFlag(data.flags[i].x, data.flags[i].y+data.flags[i].z, data.flags[i].size, data.player[index].x, data.player[index].y);
 		}
 
-		//draw other players relative to this player
+		// draw other players relative to this player
 		ctx.lineWidth = 4;
 		for(var i = 0; i < data.player.length; i++) {
 			if(i != index) {
@@ -60,6 +63,11 @@ renderFlag = function(x, y, size, px, py) {
 			250 + SCALE*(y - py - 0.5*size), SCALE*size, SCALE*size);
 	ctx.fill();
 	ctx.stroke();
+}
+renderShadow = function(x, y, px, py, size) {
+	ctx.fillStyle = "#cccccc";
+	ctx.fillRect(250 + SCALE*(x - px - 0.5*size),
+			250 + SCALE*(y - py - 0.5*size), SCALE*size, SCALE*size);
 }
 
 renderPlayer = function(player, px, py) {
