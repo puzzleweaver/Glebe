@@ -3,10 +3,8 @@ var Entity = function() {
 	var self = {
 			x:0,
 			y:0,
-			z:0,
 			speedX: 0,
 			speedY: 0,
-			speedZ: 0,
 			size: 1,
 			id:"",
 	}

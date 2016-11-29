@@ -20,7 +20,7 @@ socket.on("newPositions", function(data) {
 		ctx.drawImage(startScreenImage, 0, 0);
 	}else {
 		// new information on positions, basically a render function
-		ctx.fillStyle = "#444444";
+		ctx.fillStyle = "#888888";
 		ctx.fillRect(0, 0, 500, 500);
 
 		var index; //index of this player
@@ -29,12 +29,8 @@ socket.on("newPositions", function(data) {
 				index = i;
 
 		// draw bounds
-		ctx.fillStyle = "#ffffff";
-		ctx.strokeStyle = "#888888";
-		ctx.beginPath();
-		ctx.rect(250 + SCALE*(-20 - data.player[index].x), 250 + SCALE*(-20 - data.player[index].y), SCALE*40, SCALE*40);
-		ctx.fill();
-		ctx.stroke();
+		ctx.fillStyle = "#000000";
+		ctx.fillRect(250 + SCALE*(-10 - data.player[index].x), 250 + SCALE*(-10 - data.player[index].y), SCALE*20, SCALE*20);
 
 		// draw flags and their shadows
 		for(var i = 0; i < data.flags.length; i++) {
@@ -56,27 +52,28 @@ socket.on("newPositions", function(data) {
 });
 
 renderFlag = function(x, y, size, px, py) {
-	ctx.fillStyle = "#ffff00";
-	ctx.strokeStyle = "#000000";
+	ctx.strokeStyle = "#ffff00";
 	ctx.beginPath();
-	ctx.rect(250 + SCALE*(x - px - 0.5*size),
-			250 + SCALE*(y - py - 0.5*size), SCALE*size, SCALE*size);
+	ctx.moveTo(250 + SCALE*(x - px), 250 + SCALE*(y - py - 0.5*size));
+	ctx.lineTo(250 + SCALE*(x - px - 0.5*size), 250 + SCALE*(y - py + 0.5*size));
+	ctx.lineTo(250 + SCALE*(x - px + 0.5*size), 250 + SCALE*(y - py + 0.5*size));
+	ctx.closePath();
+	//ctx.lineTo(250 + SCALE*(x - px), 250 + SCALE*(y - py - 0.5*size));
 	ctx.fill();
 	ctx.stroke();
 }
 renderShadow = function(x, y, px, py, size) {
-	ctx.fillStyle = "#cccccc";
+	ctx.fillStyle = "#000000";
 	ctx.fillRect(250 + SCALE*(x - px - 0.5*size),
 			250 + SCALE*(y - py - 0.5*size), SCALE*size, SCALE*size);
 }
 
 renderPlayer = function(player, px, py) {
 	if(player.team == 0)
-		ctx.fillStyle = "#ff0000";
+		ctx.strokeStyle = "#ff0000";
 	else
-		ctx.fillStyle = "#0000ff";
-	//outline player differently
-	ctx.strokeStyle = "#000000";
+		ctx.strokeStyle = "#0000ff";
+
 	ctx.beginPath();
 	ctx.arc(250 + SCALE*(player.x - px), 250 + SCALE*(player.y - py), SCALE*0.5*player.size, 0, 2 * Math.PI);
 	ctx.fill();

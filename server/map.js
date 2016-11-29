@@ -6,7 +6,8 @@ var Map = function() {
 	return self;
 	
 }
-Map.width = 40;
-Map.height = 40;
+
+Map.width = 20;
+Map.height = 20;
 
 module.exports = Map;

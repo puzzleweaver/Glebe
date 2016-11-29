@@ -6,6 +6,8 @@ var Flag = function() {
 	var self = Entity();
 	self.x = Map.width * (Math.random() - 0.5);
 	self.y = Map.height * (Math.random() - 0.5);
+	self.z = 0;
+	self.speedZ = 0;
 	self.size = Math.random()+0.2;
 	var super_update = self.update;
 

@@ -36,7 +36,7 @@ var Player = function(id) {
 	self.pickUpFlag = function() {
 		var dx, dy;
 		for(var i in Flag.list) {
-			if(Flag.list[i].size > self.size)
+			if(Flag.list[i].z < -self.size*0.5 || Flag.list[i].size > self.size)
 				continue;
 			dx = Flag.list[i].x - self.x;
 			dy = Flag.list[i].y - self.y;
@@ -83,6 +83,7 @@ var Player = function(id) {
 		
 		var step = 0.0625;
 		var smooth = self.maxSpeed/(step+self.maxSpeed);
+		step *= 0.9*(1.111-self.carryingFlag/self.size);
 		if(self.pressingLeft)
 			self.speedX -= step;
 		else if(self.pressingRight)
